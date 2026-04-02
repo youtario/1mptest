@@ -9,11 +9,12 @@ import * as d3 from 'd3'
 import * as topojson from 'topojson-client'
 
 const globeEl = ref(null)
-let hoverD = null
+
 let globe = null
+let hoverD = null
 
 onMounted(async () => {
-  // 1️⃣ TopoJSON
+  // 1️⃣ Carrega países
   const world = await fetch(
     'https://unpkg.com/world-atlas@2/countries-110m.json'
   ).then(res => res.json())
@@ -40,24 +41,43 @@ onMounted(async () => {
     .globeImageUrl('//unpkg.com/three-globe/example/img/earth-dark.jpg')
     .backgroundColor('#000')
     .polygonsData(countries.features)
+
+    // ALTURA (hover)
+    .polygonAltitude(d => (d === hoverD ? 0.12 : 0.06))
+    .polygonsTransitionDuration(250)
+
     .polygonCapColor(d => colorScale(d.properties.value))
     .polygonSideColor(() => 'rgba(0, 100, 0, 0.15)')
     .polygonStrokeColor(() => '#111')
+
     .polygonLabel(d => `
       <b>${d.properties.name ?? 'País'}</b><br/>
       Valor: ${d.properties.value.toFixed(1)}
     `)
-    .polygonAltitude(d => d === hoverD ? 0.12 : 0.06)
-    .polygonsTransitionDuration(200)
 
-    // 🔥 HOVER FUNCIONAL
+    //  HOVER
     .onPolygonHover(d => {
       hoverD = d
       globe.polygonAltitude(globe.polygonAltitude())
     })
 
+    //  CLICK + ZOOM
+    .onPolygonClick(d => {
+      const [lng, lat] = d3.geoCentroid(d)
+
+      globe.pointOfView(
+        {
+          lat,
+          lng,
+          altitude: 1.5 // quanto menor, mais zoom
+        },
+        1000 // duração da animação (ms)
+      )
+    })
+
+  // Controles
   globe.controls().autoRotate = true
-  globe.controls().autoRotateSpeed = 0.4
+  globe.controls().autoRotateSpeed = 0.3
 })
 </script>
 
@@ -65,5 +85,6 @@ onMounted(async () => {
 .globe {
   width: 100%;
   height: 100vh;
+  cursor: pointer;
 }
 </style>
