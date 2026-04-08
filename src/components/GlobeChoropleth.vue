@@ -36,10 +36,12 @@
     </div>
   </aside>
 
+  <!-- Badge de filtros ativos -->
   <div class="active-badge" v-if="totalActiveFilters > 0">
     {{ totalActiveFilters }} filtro(s) ativo(s)
   </div>
 
+  <!-- Container do globo — ocupa a tela toda -->
   <div ref="globeEl" class="globe-wrap"></div>
 </template>
 
@@ -204,7 +206,7 @@ onMounted(async () => {
     .width(window.innerWidth)
     .height(window.innerHeight)
     .globeImageUrl('//unpkg.com/three-globe/example/img/earth-dark.jpg')
-    .backgroundColor('#000011')
+    .backgroundColor('#1F1235')
     .polygonsData(countries.features)
     .polygonAltitude(d => d === hoverD ? 0.12 : 0.02 + d.properties.universities / 50000)
     .polygonsTransitionDuration(300)
@@ -232,6 +234,7 @@ onMounted(async () => {
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
 
+/* Globe — tela toda, atrás de tudo */
 .globe-wrap {
   position: fixed;
   inset: 0;
@@ -240,6 +243,7 @@ onMounted(async () => {
 }
 .globe-wrap:active { cursor: grabbing; }
 
+/* Painel — fixo à esquerda, na frente do globo */
 .filter-panel {
   position: fixed;
   top: 0;
