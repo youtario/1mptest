@@ -70,8 +70,14 @@ onMounted(async () => {
       globe.pointOfView({ lat, lng, altitude: 1.4 }, 1000)
     })
 
-  globe.controls().autoRotate = true
-  globe.controls().autoRotateSpeed = 0.3
+globe.controls().autoRotate = true
+globe.controls().autoRotateSpeed = 0.3
+
+globe.controls().autoRotate = true
+globe.controls().autoRotateSpeed = 0.3
+
+globe.controls().maxDistance = globe.getGlobeRadius() * 4
+globe.controls().minDistance = globe.getGlobeRadius() * 1.1
 })
 </script>
 
