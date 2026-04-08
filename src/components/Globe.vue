@@ -13,7 +13,6 @@ onMounted(() => {
     .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
     .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png')
 
-  // Ajusta o zoom inicial
   globe.controls().autoRotate = true
   globe.controls().autoRotateSpeed = 0.5
 })
