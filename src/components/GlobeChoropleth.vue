@@ -1,4 +1,21 @@
 <template>
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="navbar_logo">
+      <!--<img src="/logogb.png" alt="Global Bridge" />-->
+    </div>
+    <nav class="navbar_links">
+      <a href="#">Meu destino</a>
+      <a href="#">Agências</a>
+      <a href="#">Anos</a>
+      <a href="#">Contato</a>
+    </nav>
+    <button class="navbar_cta">
+      Cadastre-se
+      <span class="cta-icon">↗</span>
+    </button>
+  </header>
+
   <!-- Painel de filtros fixo, por cima do globo -->
   <aside class="filter-panel" :class="{ collapsed: panelCollapsed }">
     <button class="collapse-btn" @click="panelCollapsed = !panelCollapsed">
@@ -99,17 +116,16 @@ const filters = [
   {
     id: 'cultura', icon: '🎭', label: 'Cultura',
     options: [
-      { value: 'gastronomia', label: 'Gastronomia'          },
-      { value: 'musica',      label: 'Música'               },
-      { value: 'esportes',    label: 'Esportes'             },
+      { value: 'gastronomia', label: 'Gastronomia'           },
+      { value: 'musica',      label: 'Música'                },
+      { value: 'esportes',    label: 'Esportes'              },
       { value: 'religiao',    label: 'Diversidade Religiosa' },
-      { value: 'festivais',   label: 'Festivais'            },
-      { value: 'natureza',    label: 'Natureza & Aventura'  },
+      { value: 'festivais',   label: 'Festivais'             },
+      { value: 'natureza',    label: 'Natureza & Aventura'   },
     ],
   },
 ]
 
-// Mapeamento país → categorias de filtro
 const countryMeta = {
   'United States of America': { emprego: ['tech','financas','saude','engenharia','educacao','artes'], idioma: ['ingles'], cultura: ['gastronomia','musica','esportes','festivais'], universidade: ['top100','privadas','intercambio'] },
   'United Kingdom':           { emprego: ['tech','financas','saude','educacao'], idioma: ['ingles'], cultura: ['musica','festivais','gastronomia'], universidade: ['top100','intercambio'] },
@@ -232,9 +248,83 @@ onMounted(async () => {
 </script>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&family=Montserrat:wght@400;600;700&display=swap');
 
-/* Globe — tela toda, atrás de tudo */
+/* ── Navbar ── */
+.navbar {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 48px);
+  max-width: 1100px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  height: 60px;
+  background: #ffffff;
+  border-radius: 15px;
+  box-shadow: 0 2px 24px rgba(0, 0, 0, 0.18);
+  font-family: 'Montserrat', sans-serif;
+  z-index: 200;
+}
+
+.navbar_logo img {
+  height: 36px;
+  display: block;
+}
+
+.navbar_links {
+  display: flex;
+  gap: 36px;
+}
+
+.navbar_links a {
+  text-decoration: none;
+  color: #1a1a1a;
+  font-size: 13px;
+  font-weight: 600;
+  transition: color 0.2s;
+}
+
+.navbar_links a:hover {
+  color: #A33DA3;
+}
+
+.navbar_cta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #A33DA3;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.navbar_cta:hover {
+  background: #8a2e8a;
+}
+
+.cta-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+  font-size: 13px;
+}
+
+/* ── Globe ── */
 .globe-wrap {
   position: fixed;
   inset: 0;
@@ -243,12 +333,12 @@ onMounted(async () => {
 }
 .globe-wrap:active { cursor: grabbing; }
 
-/* Painel — fixo à esquerda, na frente do globo */
+/* ── Painel ── */
 .filter-panel {
   position: fixed;
-  top: 0;
+  top: 92px;
   left: 0;
-  height: 100vh;
+  height: calc(100vh - 92px);
   width: 300px;
   background: linear-gradient(160deg, rgba(13,0,16,0.93) 0%, rgba(10,0,15,0.93) 100%);
   backdrop-filter: blur(14px);
@@ -265,7 +355,6 @@ onMounted(async () => {
   transform: translateX(-256px);
 }
 
-/* Botão de colapsar */
 .collapse-btn {
   position: absolute;
   top: 50%;
@@ -288,7 +377,6 @@ onMounted(async () => {
 }
 .collapse-btn:hover { background: #2a004a; }
 
-/* Conteúdo interno */
 .panel-inner {
   padding: 32px 20px 24px;
   overflow-y: auto;
@@ -319,7 +407,6 @@ onMounted(async () => {
 }
 .panel-title span { color: #b43cff; }
 
-/* Seções */
 .filter-section {
   border: 1px solid rgba(180,60,255,0.1);
   border-radius: 10px;
@@ -357,7 +444,6 @@ onMounted(async () => {
 }
 .section-arrow.open { transform: rotate(180deg); }
 
-/* Opções */
 .section-options {
   max-height: 0;
   overflow: hidden;
@@ -411,7 +497,6 @@ onMounted(async () => {
   border-radius: 10px;
 }
 
-/* Botão limpar */
 .clear-btn {
   margin-top: auto;
   padding: 10px;
@@ -430,7 +515,6 @@ onMounted(async () => {
   border-color: rgba(180,60,255,0.5);
 }
 
-/* Badge */
 .active-badge {
   position: fixed;
   bottom: 24px;
