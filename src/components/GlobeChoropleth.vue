@@ -2,7 +2,7 @@
   <!-- Navbar -->
   <header class="navbar">
     <div class="navbar_logo">
-      <!--<img src="/logogb.png" alt="Global Bridge" />-->
+     <!--<img src="/logogb.png" alt="Global Bridge" />-->
     </div>
     <nav class="navbar_links">
       <a href="#">Meu destino</a>
@@ -16,18 +16,11 @@
     </button>
   </header>
 
-  <!-- Painel de filtros fixo, por cima do globo -->
   <aside class="filter-panel" :class="{ collapsed: panelCollapsed }">
     <button class="collapse-btn" @click="panelCollapsed = !panelCollapsed">
       {{ panelCollapsed ? '›' : '‹' }}
     </button>
-
     <div class="panel-inner">
-      <div class="panel-header">
-        <span class="panel-logo">🌐</span>
-        <h1 class="panel-title">Explorar<br><span>o Mundo</span></h1>
-      </div>
-
       <div class="filter-section" v-for="section in filters" :key="section.id">
         <div class="section-header" @click="toggleSection(section.id)">
           <span class="section-icon">{{ section.icon }}</span>
@@ -48,17 +41,37 @@
           </div>
         </div>
       </div>
-
       <button class="clear-btn" @click="clearFilters">Limpar filtros</button>
     </div>
   </aside>
 
-  <!-- Badge de filtros ativos -->
+  <aside class="agencies-panel">
+    <h2 class="agencies-title">Agências Disponíveis</h2>
+    <div class="agencies-list">
+      <div v-for="agency in filteredAgencies" :key="agency.id" class="agency-card">
+        <div class="agency-header">
+          <span class="agency-name">{{ agency.name }}</span>
+          <span class="agency-stars">
+            <span v-for="i in 5" :key="i" class="star" :class="{ filled: i <= agency.stars }">★</span>
+          </span>
+        </div>
+        <p class="agency-desc">{{ agency.description }}</p>
+        <div class="agency-footer">
+          <span class="agency-location">📍 {{ agency.location }}</span>
+          <button class="agency-btn">Acessar</button>
+        </div>
+      </div>
+      <p v-if="filteredAgencies.length === 0" class="no-agencies">
+        Nenhuma agência para os filtros selecionados.
+      </p>
+    </div>
+  </aside>
+
   <div class="active-badge" v-if="totalActiveFilters > 0">
     {{ totalActiveFilters }} filtro(s) ativo(s)
   </div>
 
-  <!-- Container do globo — ocupa a tela toda -->
+  <!-- Globo -->
   <div ref="globeEl" class="globe-wrap"></div>
 </template>
 
@@ -82,12 +95,12 @@ const filters = [
   {
     id: 'emprego', icon: '💼', label: 'Emprego',
     options: [
-      { value: 'tech',       label: 'Tecnologia',   count: '4.2k' },
-      { value: 'saude',      label: 'Saúde',        count: '1.8k' },
-      { value: 'engenharia', label: 'Engenharia',   count: '2.1k' },
-      { value: 'financas',   label: 'Finanças',     count: '900'  },
-      { value: 'educacao',   label: 'Educação',     count: '3.4k' },
-      { value: 'artes',      label: 'Artes & Design', count: '650' },
+      { value: 'tech',       label: 'Tecnologia',     count: '4.2k' },
+      { value: 'saude',      label: 'Saúde',          count: '1.8k' },
+      { value: 'engenharia', label: 'Engenharia',     count: '2.1k' },
+      { value: 'financas',   label: 'Finanças',       count: '900'  },
+      { value: 'educacao',   label: 'Educação',       count: '3.4k' },
+      { value: 'artes',      label: 'Artes & Design', count: '650'  },
     ],
   },
   {
@@ -98,7 +111,7 @@ const filters = [
       { value: 'intercambio', label: 'Intercâmbio'     },
       { value: 'publicas',    label: 'Públicas'        },
       { value: 'privadas',    label: 'Privadas'        },
-      { value: 'ead',         label: 'EAD / Online'   },
+      { value: 'ead',         label: 'EAD / Online'    },
     ],
   },
   {
@@ -123,6 +136,57 @@ const filters = [
       { value: 'festivais',   label: 'Festivais'             },
       { value: 'natureza',    label: 'Natureza & Aventura'   },
     ],
+  },
+]
+
+const agencies = [
+  {
+    id: 1, name: 'Japan Express', stars: 5,
+    description: 'Especializada em intercâmbio no Japão com suporte completo em português, visto e moradia.',
+    location: 'Tokyo, Japão',
+    tags: { idioma: ['japones'], universidade: ['intercambio', 'bolsas'] },
+  },
+  {
+    id: 2, name: 'Living Japan', stars: 4,
+    description: 'Programas de imersão cultural e linguística em diversas cidades japonesas.',
+    location: 'Osaka, Japão',
+    tags: { idioma: ['japones'], cultura: ['gastronomia', 'festivais'] },
+  },
+  {
+    id: 3, name: 'MEXT', stars: 3,
+    description: 'Bolsas governamentais japonesas para graduação e pós-graduação no exterior.',
+    location: 'Kyoto, Japão',
+    tags: { universidade: ['top100', 'bolsas', 'publicas'], idioma: ['japones'] },
+  },
+  {
+    id: 4, name: 'EF Education', stars: 5,
+    description: 'Cursos de idiomas em mais de 50 países com certificação internacional reconhecida.',
+    location: 'Londres, Reino Unido',
+    tags: { idioma: ['ingles', 'frances', 'alemao'], universidade: ['intercambio'] },
+  },
+  {
+    id: 5, name: 'Campus France', stars: 4,
+    description: 'Agência oficial francesa para estudantes internacionais com bolsas e vistos.',
+    location: 'Paris, França',
+    tags: { idioma: ['frances'], universidade: ['top100', 'bolsas', 'publicas'] },
+  },
+  {
+    id: 6, name: 'DAAD Brasil', stars: 5,
+    description: 'Serviço Alemão de Intercâmbio Acadêmico com bolsas para universidades alemãs.',
+    location: 'Berlim, Alemanha',
+    tags: { idioma: ['alemao'], universidade: ['top100', 'bolsas', 'publicas'] },
+  },
+  {
+    id: 7, name: 'Study USA', stars: 4,
+    description: 'Intercâmbio nos EUA: high school, college e programas de trabalho.',
+    location: 'Nova York, EUA',
+    tags: { idioma: ['ingles'], universidade: ['top100', 'intercambio', 'privadas'], emprego: ['tech', 'financas'] },
+  },
+  {
+    id: 8, name: 'Ibero Intercâmbio', stars: 3,
+    description: 'Programas na Espanha e América Latina com foco em cultura e gastronomia.',
+    location: 'Madrid, Espanha',
+    tags: { idioma: ['espanhol'], cultura: ['gastronomia', 'festivais', 'musica'] },
   },
 ]
 
@@ -160,6 +224,18 @@ const totalActiveFilters = computed(() =>
   Object.values(activeFilters).reduce((acc, arr) => acc + arr.length, 0)
 )
 
+const filteredAgencies = computed(() => {
+  if (totalActiveFilters.value === 0) return agencies
+  return agencies.filter(agency => {
+    for (const [cat, selected] of Object.entries(activeFilters)) {
+      if (selected.length === 0) continue
+      const values = agency.tags?.[cat] ?? []
+      if (!selected.some(v => values.includes(v))) return false
+    }
+    return true
+  })
+})
+
 function countryMatchesFilters(name) {
   if (totalActiveFilters.value === 0) return true
   const meta = countryMeta[name]
@@ -175,11 +251,11 @@ function countryMatchesFilters(name) {
 function refreshGlobe() {
   if (!globe) return
   globe
-    .polygonCapColor(d => {
-      return countryMatchesFilters(d.properties.name)
+    .polygonCapColor(d =>
+      countryMatchesFilters(d.properties.name)
         ? colorScale(d.properties.universities)
         : 'rgba(20,5,30,0.35)'
-    })
+    )
     .polygonAltitude(d => {
       if (d === hoverD) return 0.12
       return countryMatchesFilters(d.properties.name)
@@ -222,7 +298,7 @@ onMounted(async () => {
     .width(window.innerWidth)
     .height(window.innerHeight)
     .globeImageUrl('//unpkg.com/three-globe/example/img/earth-dark.jpg')
-    .backgroundColor('#1F1235')
+    .backgroundColor('#3b1060')
     .polygonsData(countries.features)
     .polygonAltitude(d => d === hoverD ? 0.12 : 0.02 + d.properties.universities / 50000)
     .polygonsTransitionDuration(300)
@@ -253,31 +329,31 @@ onMounted(async () => {
 /* ── Navbar ── */
 .navbar {
   position: fixed;
-  top: 16px;
+  top: 12px;
   left: 50%;
   transform: translateX(-50%);
-  width: calc(100% - 48px);
-  max-width: 1100px;
+  width: calc(100% - 440px); /* espaço para os dois painéis */
+  max-width: 900px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 20px;
-  height: 60px;
+  height: 52px;
   background: #ffffff;
-  border-radius: 15px;
-  box-shadow: 0 2px 24px rgba(0, 0, 0, 0.18);
+  border-radius: 12px;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.15);
   font-family: 'Montserrat', sans-serif;
   z-index: 200;
 }
 
 .navbar_logo img {
-  height: 36px;
+  height: 32px;
   display: block;
 }
 
 .navbar_links {
   display: flex;
-  gap: 36px;
+  gap: 28px;
 }
 
 .navbar_links a {
@@ -287,41 +363,35 @@ onMounted(async () => {
   font-weight: 600;
   transition: color 0.2s;
 }
-
-.navbar_links a:hover {
-  color: #A33DA3;
-}
+.navbar_links a:hover { color: #7b2d8b; }
 
 .navbar_cta {
   display: flex;
   align-items: center;
-  gap: 10px;
-  background: #A33DA3;
+  gap: 8px;
+  background: #7b2d8b;
   color: #fff;
   border: none;
-  border-radius: 10px;
-  padding: 10px 20px;
+  border-radius: 8px;
+  padding: 8px 16px;
   font-family: 'Montserrat', sans-serif;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 700;
   cursor: pointer;
   transition: background 0.2s;
   white-space: nowrap;
 }
-
-.navbar_cta:hover {
-  background: #8a2e8a;
-}
+.navbar_cta:hover { background: #5a1f68; }
 
 .cta-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
-  background: rgba(255, 255, 255, 0.25);
+  width: 22px;
+  height: 22px;
+  background: rgba(255,255,255,0.2);
   border-radius: 50%;
-  font-size: 13px;
+  font-size: 12px;
 }
 
 /* ── Globe ── */
@@ -333,17 +403,15 @@ onMounted(async () => {
 }
 .globe-wrap:active { cursor: grabbing; }
 
-/* ── Painel ── */
+/* ── Painel ESQUERDO (filtros) ── */
 .filter-panel {
   position: fixed;
-  top: 92px;
+  top: 0;
   left: 0;
-  height: calc(100vh - 92px);
-  width: 300px;
-  background: linear-gradient(160deg, rgba(13,0,16,0.93) 0%, rgba(10,0,15,0.93) 100%);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-right: 1px solid rgba(180,60,255,0.18);
+  height: 100vh;
+  width: 210px;
+  background: #f5f0f0;
+  border-right: 1px solid #e0d8e8;
   display: flex;
   flex-direction: column;
   transition: transform 0.35s cubic-bezier(.4,0,.2,1);
@@ -352,94 +420,71 @@ onMounted(async () => {
 }
 
 .filter-panel.collapsed {
-  transform: translateX(-256px);
+  transform: translateX(-178px);
 }
 
 .collapse-btn {
   position: absolute;
   top: 50%;
-  right: -16px;
+  right: -15px;
   transform: translateY(-50%);
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
-  background: #1a0028;
-  border: 1px solid rgba(180,60,255,0.45);
-  color: #b43cff;
-  font-size: 20px;
-  line-height: 1;
+  background: #fff;
+  border: 1px solid #d0b8e0;
+  color: #7b2d8b;
+  font-size: 18px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 12px rgba(180,60,255,0.3);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
   z-index: 101;
 }
-.collapse-btn:hover { background: #2a004a; }
+.collapse-btn:hover { background: #f0e8f8; }
 
 .panel-inner {
-  padding: 32px 20px 24px;
+  padding: 80px 14px 20px;
   overflow-y: auto;
   height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
   scrollbar-width: thin;
-  scrollbar-color: rgba(180,60,255,0.3) transparent;
+  scrollbar-color: #d0b8e0 transparent;
 }
-.panel-inner::-webkit-scrollbar { width: 4px; }
-.panel-inner::-webkit-scrollbar-thumb { background: rgba(180,60,255,0.3); border-radius: 2px; }
-
-.panel-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 24px;
-}
-.panel-logo { font-size: 26px; }
-.panel-title {
-  font-family: 'Syne', sans-serif;
-  font-weight: 800;
-  font-size: 18px;
-  color: #fff;
-  line-height: 1.2;
-  margin: 0;
-}
-.panel-title span { color: #b43cff; }
 
 .filter-section {
-  border: 1px solid rgba(180,60,255,0.1);
-  border-radius: 10px;
+  border-radius: 6px;
   overflow: hidden;
-  transition: border-color 0.2s;
 }
-.filter-section:hover { border-color: rgba(180,60,255,0.28); }
 
 .section-header {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 14px;
+  gap: 8px;
+  padding: 8px 10px;
   cursor: pointer;
   user-select: none;
-  background: rgba(180,60,255,0.04);
+  border-radius: 6px;
   transition: background 0.2s;
 }
-.section-header:hover { background: rgba(180,60,255,0.1); }
+.section-header:hover { background: rgba(123,45,139,0.08); }
 
-.section-icon { font-size: 15px; }
+.section-icon { font-size: 12px; }
 .section-label {
   flex: 1;
-  font-family: 'Syne', sans-serif;
-  font-weight: 600;
-  font-size: 13px;
-  color: #e0d0f0;
-  letter-spacing: 0.03em;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 10px;
+  color: #2a002a;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 .section-arrow {
-  font-size: 12px;
-  color: #7a4fa0;
-  display: inline-block;
+  font-size: 10px;
+  color: #7b2d8b;
   transition: transform 0.25s;
 }
 .section-arrow.open { transform: rotate(180deg); }
@@ -454,85 +499,209 @@ onMounted(async () => {
 .option-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 9px 14px;
+  gap: 7px;
+  padding: 6px 10px 6px 24px;
   cursor: pointer;
-  border-top: 1px solid rgba(180,60,255,0.06);
+  border-radius: 5px;
   transition: background 0.15s;
+  margin: 1px 0;
 }
-.option-item:hover { background: rgba(180,60,255,0.08); }
-.option-item.active { background: rgba(180,60,255,0.14); }
+.option-item:hover { background: rgba(123,45,139,0.07); }
+.option-item.active { background: rgba(123,45,139,0.12); }
 
 .option-check {
-  width: 16px;
-  height: 16px;
-  border: 1px solid rgba(180,60,255,0.4);
-  border-radius: 4px;
+  width: 13px;
+  height: 13px;
+  border: 1.5px solid #c0a0d0;
+  border-radius: 3px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
-  color: #b43cff;
+  font-size: 9px;
+  color: #7b2d8b;
   flex-shrink: 0;
-  background: rgba(180,60,255,0.06);
+  background: #fff;
 }
 .option-item.active .option-check {
-  background: #b43cff;
+  background: #7b2d8b;
   color: #fff;
-  border-color: #b43cff;
+  border-color: #7b2d8b;
 }
 
 .option-text {
   flex: 1;
-  font-size: 13px;
-  color: #c4b0d8;
+  font-size: 11px;
+  color: #3a2040;
+  font-family: 'DM Sans', sans-serif;
 }
-.option-item.active .option-text { color: #ecddf8; }
+.option-item.active .option-text { color: #1a001a; font-weight: 500; }
 
 .option-count {
-  font-size: 11px;
-  color: #6a4a8a;
-  background: rgba(180,60,255,0.08);
-  padding: 1px 6px;
-  border-radius: 10px;
+  font-size: 9px;
+  color: #7b2d8b;
+  background: rgba(123,45,139,0.1);
+  padding: 1px 5px;
+  border-radius: 8px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
 }
 
 .clear-btn {
   margin-top: auto;
-  padding: 10px;
-  border: 1px solid rgba(180,60,255,0.25);
-  border-radius: 8px;
+  padding: 8px;
+  border: 1px solid #c0a0d0;
+  border-radius: 7px;
   background: transparent;
-  color: #8a5aaa;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13px;
+  color: #7b2d8b;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
   cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   transition: all 0.2s;
 }
-.clear-btn:hover {
-  background: rgba(180,60,255,0.1);
-  color: #c490e8;
-  border-color: rgba(180,60,255,0.5);
+.clear-btn:hover { background: rgba(123,45,139,0.08); }
+
+/* ── Painel DIREITO (agências) ── */
+.agencies-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  width: 220px;
+  background: #f5f0f0;
+  border-left: 1px solid #e0d8e8;
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
 }
 
+.agencies-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 13px;
+  color: #2a002a;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 80px 16px 12px;
+  margin: 0;
+  border-bottom: 1px solid #e0d0e8;
+}
+
+.agencies-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: #d0b8e0 transparent;
+}
+
+.agency-card {
+  background: #ffffff;
+  border: 1px solid #e8ddf0;
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+.agency-card:hover {
+  box-shadow: 0 3px 12px rgba(123,45,139,0.1);
+  border-color: #c0a0d0;
+}
+
+.agency-header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.agency-name {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 12px;
+  color: #1a001a;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.agency-stars {
+  display: flex;
+  gap: 1px;
+}
+.star { font-size: 11px; color: #ddd; }
+.star.filled { color: #7b2d8b; }
+
+.agency-desc {
+  font-size: 10px;
+  color: #5a3a6a;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.agency-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 2px;
+}
+
+.agency-location {
+  font-size: 9px;
+  color: #8a5a9a;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.agency-btn {
+  background: #7b2d8b;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 4px 10px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.agency-btn:hover { background: #5a1f68; }
+
+.no-agencies {
+  font-size: 11px;
+  color: #8a5a9a;
+  text-align: center;
+  padding: 20px 0;
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* ── Badge ── */
 .active-badge {
   position: fixed;
-  bottom: 24px;
-  right: 24px;
-  background: #b43cff;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #7b2d8b;
   color: #fff;
-  font-family: 'Syne', sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  padding: 6px 14px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 5px 14px;
   border-radius: 20px;
-  box-shadow: 0 0 20px rgba(180,60,255,0.5);
-  z-index: 100;
+  box-shadow: 0 4px 16px rgba(123,45,139,0.35);
+  z-index: 150;
   animation: fadeIn 0.2s ease;
+  letter-spacing: 0.03em;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateX(-50%) translateY(6px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 </style>
