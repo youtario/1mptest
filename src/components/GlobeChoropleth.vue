@@ -681,7 +681,6 @@ onMounted(async () => {
   font-family: 'DM Sans', sans-serif;
 }
 
-/* ── Badge ── */
 .active-badge {
   position: fixed;
   bottom: 20px;
