@@ -307,20 +307,38 @@ onMounted(async () => {
     .polygonStrokeColor(() => '#2d004b')
     .polygonLabel(d => `<b>${d.properties.name}</b><br/>Universidades: ${d.properties.universities}`)
     .onPolygonHover(d => { hoverD = d; globe.polygonAltitude(globe.polygonAltitude()) })
-    .onPolygonClick(d => {
-      const [lng, lat] = d3.geoCentroid(d)
-      globe.pointOfView({ lat, lng, altitude: 1.4 }, 1000)
-    })
+   .onPolygonClick(d => {
+  globe.controls().autoRotate = false  // ← adiciona isso
+  const [lng, lat] = d3.geoCentroid(d)
+  globe.pointOfView({ lat, lng, altitude: 1.4 }, 1000)
+  let rotateTimer = null
+
+function stopAndScheduleRotation() {
+  globe.controls().autoRotate = false
+  clearTimeout(rotateTimer)
+  rotateTimer = setTimeout(() => {
+    globe.controls().autoRotate = true
+  }, 3000) // volta a rodar após 3 segundos parado
+  .onPolygonClick(d => {
+  stopAndScheduleRotation()
+  const [lng, lat] = d3.geoCentroid(d)
+  globe.pointOfView({ lat, lng, altitude: 1.4 }, 1000)
+})
+}
+
+globe.controls().addEventListener('start', stopAndScheduleRotation)
+})
 
   globe.controls().autoRotate = true
   globe.controls().autoRotateSpeed = 0.3
-  globe.controls().maxDistance = globe.getGlobeRadius() * 4
-  globe.controls().minDistance = globe.getGlobeRadius() * 1.1
+  globe.controls().maxDistance = globe.getGlobeRadius() * 3.5
+  globe.controls().minDistance = globe.getGlobeRadius() * 2.5
 
   window.addEventListener('resize', () => {
     globe.width(window.innerWidth).height(window.innerHeight)
   })
 })
+
 </script>
 
 <style>
