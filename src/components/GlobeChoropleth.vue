@@ -18,15 +18,29 @@
 
   <aside class="filter-panel" :class="{ collapsed: panelCollapsed }">
     <button class="collapse-btn" @click="panelCollapsed = !panelCollapsed">
-      {{ panelCollapsed ? '›' : '‹' }}
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path :d="panelCollapsed ? 'M6 3l5 5-5 5' : 'M10 3L5 8l5 5'" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
     </button>
+
     <div class="panel-inner">
+      <div class="panel-heading">
+        <span class="panel-label">Filtros</span>
+        <span class="panel-line"></span>
+      </div>
+
       <div class="filter-section" v-for="section in filters" :key="section.id">
         <div class="section-header" @click="toggleSection(section.id)">
-          <span class="section-icon">{{ section.icon }}</span>
           <span class="section-label">{{ section.label }}</span>
-          <span class="section-arrow" :class="{ open: openSections[section.id] }">▾</span>
+          <svg
+            class="section-arrow"
+            :class="{ open: openSections[section.id] }"
+            width="12" height="12" viewBox="0 0 12 12" fill="none"
+          >
+            <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
         </div>
+
         <div class="section-options" :class="{ open: openSections[section.id] }">
           <div
             v-for="opt in section.options"
@@ -35,13 +49,20 @@
             :class="{ active: activeFilters[section.id]?.includes(opt.value) }"
             @click="toggleFilter(section.id, opt.value)"
           >
-            <span class="option-check">{{ activeFilters[section.id]?.includes(opt.value) ? '✓' : '' }}</span>
+            <span class="option-check">
+              <svg v-if="activeFilters[section.id]?.includes(opt.value)" width="8" height="8" viewBox="0 0 8 8" fill="none">
+                <path d="M1 4l2.5 2.5L7 1.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
             <span class="option-text">{{ opt.label }}</span>
             <span class="option-count" v-if="opt.count">{{ opt.count }}</span>
           </div>
         </div>
       </div>
-      <button class="clear-btn" @click="clearFilters">Limpar filtros</button>
+
+      <button class="clear-btn" @click="clearFilters">
+        <span>Limpar filtros</span>
+      </button>
     </div>
   </aside>
 
@@ -93,7 +114,7 @@ const activeFilters = reactive({ emprego: [], universidade: [], idioma: [], cult
 
 const filters = [
   {
-    id: 'emprego', icon: '💼', label: 'Emprego',
+    id: 'emprego', label: 'Emprego',
     options: [
       { value: 'tech',       label: 'Tecnologia',     count: '4.2k' },
       { value: 'saude',      label: 'Saúde',          count: '1.8k' },
@@ -104,7 +125,7 @@ const filters = [
     ],
   },
   {
-    id: 'universidade', icon: '🎓', label: 'Universidade',
+    id: 'universidade', label: 'Universidade',
     options: [
       { value: 'top100',      label: 'Top 100 Mundial' },
       { value: 'bolsas',      label: 'Oferece Bolsas'  },
@@ -115,7 +136,7 @@ const filters = [
     ],
   },
   {
-    id: 'idioma', icon: '🗣️', label: 'Idioma',
+    id: 'idioma', label: 'Idioma',
     options: [
       { value: 'ingles',    label: 'Inglês'    },
       { value: 'espanhol',  label: 'Espanhol'  },
@@ -127,7 +148,7 @@ const filters = [
     ],
   },
   {
-    id: 'cultura', icon: '🎭', label: 'Cultura',
+    id: 'cultura', label: 'Cultura',
     options: [
       { value: 'gastronomia', label: 'Gastronomia'           },
       { value: 'musica',      label: 'Música'                },
@@ -307,38 +328,33 @@ onMounted(async () => {
     .polygonStrokeColor(() => '#2d004b')
     .polygonLabel(d => `<b>${d.properties.name}</b><br/>Universidades: ${d.properties.universities}`)
     .onPolygonHover(d => { hoverD = d; globe.polygonAltitude(globe.polygonAltitude()) })
-   .onPolygonClick(d => {
-  globe.controls().autoRotate = false  // ← adiciona isso
-  const [lng, lat] = d3.geoCentroid(d)
-  globe.pointOfView({ lat, lng, altitude: 1.4 }, 1000)
-  let rotateTimer = null
-
-function stopAndScheduleRotation() {
-  globe.controls().autoRotate = false
-  clearTimeout(rotateTimer)
-  rotateTimer = setTimeout(() => {
-    globe.controls().autoRotate = true
-  }, 3000) // volta a rodar após 3 segundos parado
-  .onPolygonClick(d => {
-  stopAndScheduleRotation()
-  const [lng, lat] = d3.geoCentroid(d)
-  globe.pointOfView({ lat, lng, altitude: 1.4 }, 1000)
-})
-}
-
-globe.controls().addEventListener('start', stopAndScheduleRotation)
-})
+    .onPolygonClick(d => {
+      stopAndScheduleRotation()
+      const [lng, lat] = d3.geoCentroid(d)
+      globe.pointOfView({ lat, lng, altitude: 1.4 }, 1000)
+    })
 
   globe.controls().autoRotate = true
   globe.controls().autoRotateSpeed = 0.3
-  globe.controls().maxDistance = globe.getGlobeRadius() * 3.5
-  globe.controls().minDistance = globe.getGlobeRadius() * 2.5
+  globe.controls().maxDistance = globe.getGlobeRadius() * 4
+  globe.controls().minDistance = globe.getGlobeRadius() * 1.5
+
+  let rotateTimer = null
+
+  function stopAndScheduleRotation() {
+    globe.controls().autoRotate = false
+    clearTimeout(rotateTimer)
+    rotateTimer = setTimeout(() => {
+      globe.controls().autoRotate = true
+    }, 3000)
+  }
+
+  globe.controls().addEventListener('start', stopAndScheduleRotation)
 
   window.addEventListener('resize', () => {
     globe.width(window.innerWidth).height(window.innerHeight)
   })
 })
-
 </script>
 
 <style>
@@ -350,7 +366,7 @@ globe.controls().addEventListener('start', stopAndScheduleRotation)
   top: 12px;
   left: 50%;
   transform: translateX(-50%);
-  width: calc(100% - 440px); /* espaço para os dois painéis */
+  width: calc(100% - 440px);
   max-width: 900px;
   display: flex;
   align-items: center;
@@ -427,159 +443,207 @@ globe.controls().addEventListener('start', stopAndScheduleRotation)
   top: 0;
   left: 0;
   height: 100vh;
-  width: 210px;
-  background: #f5f0f0;
-  border-right: 1px solid #e0d8e8;
+  width: 220px;
+  background: #faf8fc;
+  border-right: 1px solid rgba(80, 20, 100, 0.1);
   display: flex;
   flex-direction: column;
-  transition: transform 0.35s cubic-bezier(.4,0,.2,1);
+  transition: transform 0.4s cubic-bezier(.4,0,.2,1);
   z-index: 100;
   font-family: 'DM Sans', sans-serif;
 }
 
 .filter-panel.collapsed {
-  transform: translateX(-178px);
+  transform: translateX(-192px);
 }
 
 .collapse-btn {
   position: absolute;
   top: 50%;
-  right: -15px;
+  right: -14px;
   transform: translateY(-50%);
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  background: #fff;
-  border: 1px solid #d0b8e0;
+  background: #faf8fc;
+  border: 1px solid rgba(80, 20, 100, 0.15);
   color: #7b2d8b;
-  font-size: 18px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  box-shadow: 2px 0 12px rgba(0,0,0,0.08);
   z-index: 101;
+  transition: background 0.2s, box-shadow 0.2s;
 }
-.collapse-btn:hover { background: #f0e8f8; }
+.collapse-btn:hover {
+  background: #f0e6f8;
+  box-shadow: 2px 0 16px rgba(123,45,139,0.15);
+}
 
 .panel-inner {
-  padding: 80px 14px 20px;
+  padding: 88px 16px 24px;
   overflow-y: auto;
   height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
   scrollbar-width: thin;
-  scrollbar-color: #d0b8e0 transparent;
+  scrollbar-color: #ddd transparent;
 }
 
+.panel-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.panel-label {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #1a001a;
+  white-space: nowrap;
+}
+
+.panel-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, rgba(123,45,139,0.3), transparent);
+}
+
+/* ── Seções ── */
 .filter-section {
-  border-radius: 6px;
   overflow: hidden;
+  border-bottom: 1px solid rgba(80, 20, 100, 0.06);
 }
 
 .section-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 10px;
+  justify-content: space-between;
+  padding: 11px 4px;
   cursor: pointer;
   user-select: none;
-  border-radius: 6px;
-  transition: background 0.2s;
+  transition: color 0.2s;
 }
-.section-header:hover { background: rgba(123,45,139,0.08); }
+.section-header:hover .section-label { color: #7b2d8b; }
 
-.section-icon { font-size: 12px; }
-.section-label {
-  flex: 1;
+.section-header .section-label {
   font-family: 'Montserrat', sans-serif;
   font-weight: 700;
   font-size: 10px;
   color: #2a002a;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
+  transition: color 0.2s;
 }
-.section-arrow {
-  font-size: 10px;
-  color: #7b2d8b;
-  transition: transform 0.25s;
-}
-.section-arrow.open { transform: rotate(180deg); }
 
+.section-arrow {
+  color: #bba0cc;
+  transition: transform 0.25s cubic-bezier(.4,0,.2,1), color 0.2s;
+  flex-shrink: 0;
+}
+.section-arrow.open {
+  transform: rotate(180deg);
+  color: #7b2d8b;
+}
+
+/* ── Opções ── */
 .section-options {
   max-height: 0;
   overflow: hidden;
-  transition: max-height 0.3s cubic-bezier(.4,0,.2,1);
+  transition: max-height 0.35s cubic-bezier(.4,0,.2,1);
 }
 .section-options.open { max-height: 400px; }
 
 .option-item {
   display: flex;
   align-items: center;
-  gap: 7px;
-  padding: 6px 10px 6px 24px;
+  gap: 9px;
+  padding: 7px 4px 7px 8px;
   cursor: pointer;
-  border-radius: 5px;
+  border-radius: 4px;
   transition: background 0.15s;
-  margin: 1px 0;
+  margin-bottom: 1px;
 }
-.option-item:hover { background: rgba(123,45,139,0.07); }
-.option-item.active { background: rgba(123,45,139,0.12); }
+.option-item:hover { background: rgba(123,45,139,0.05); }
 
 .option-check {
-  width: 13px;
-  height: 13px;
-  border: 1.5px solid #c0a0d0;
+  width: 14px;
+  height: 14px;
+  border: 1.5px solid #cbb8d8;
   border-radius: 3px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 9px;
-  color: #7b2d8b;
   flex-shrink: 0;
   background: #fff;
+  transition: all 0.15s;
 }
 .option-item.active .option-check {
   background: #7b2d8b;
-  color: #fff;
   border-color: #7b2d8b;
 }
 
 .option-text {
   flex: 1;
-  font-size: 11px;
-  color: #3a2040;
-  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  color: #4a2a5a;
+  font-weight: 400;
+  transition: color 0.15s, font-weight 0.15s;
 }
-.option-item.active .option-text { color: #1a001a; font-weight: 500; }
+.option-item.active .option-text {
+  color: #1a001a;
+  font-weight: 500;
+}
 
 .option-count {
   font-size: 9px;
-  color: #7b2d8b;
-  background: rgba(123,45,139,0.1);
-  padding: 1px 5px;
-  border-radius: 8px;
+  color: #9a6aaa;
   font-family: 'Montserrat', sans-serif;
-  font-weight: 700;
+  font-weight: 600;
+  letter-spacing: 0.03em;
 }
 
+/* ── Botão limpar ── */
 .clear-btn {
   margin-top: auto;
-  padding: 8px;
-  border: 1px solid #c0a0d0;
-  border-radius: 7px;
+  padding: 10px;
+  border: 1px solid rgba(123,45,139,0.25);
+  border-radius: 6px;
   background: transparent;
   color: #7b2d8b;
   font-family: 'Montserrat', sans-serif;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
   cursor: pointer;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  transition: all 0.2s;
+  letter-spacing: 0.12em;
+  transition: color 0.2s, border-color 0.2s;
+  position: relative;
+  overflow: hidden;
 }
-.clear-btn:hover { background: rgba(123,45,139,0.08); }
+.clear-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #7b2d8b;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.clear-btn:hover {
+  color: #fff;
+  border-color: #7b2d8b;
+}
+.clear-btn:hover::after { opacity: 1; }
+.clear-btn span {
+  position: relative;
+  z-index: 1;
+}
 
 /* ── Painel DIREITO (agências) ── */
 .agencies-panel {
