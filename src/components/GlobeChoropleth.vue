@@ -25,6 +25,14 @@
       </svg>
     </button>
     <div class="panel-inner">
+      <!-- Botão voltar ao globo — aparece só quando o mapa está aberto -->
+      <button v-if="mapMode" class="back-to-globe-btn" @click="backToGlobe">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Voltar ao Globo
+      </button>
+
       <div class="panel-heading">
         <span class="panel-label">Filtros</span>
         <span class="panel-line"></span>
@@ -833,6 +841,39 @@ onUnmounted(() => {
 .collapse-btn:hover { background: #f0e6f8; box-shadow: 2px 0 16px rgba(123,45,139,0.15); }
 .panel-inner { padding: 88px 16px 24px; overflow-y: auto; height: 100%; display: flex; flex-direction: column; gap: 2px; scrollbar-width: thin; scrollbar-color: #ddd transparent; }
 .panel-heading { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+
+/* ─── Botão voltar ao globo (dentro do painel) ───────────────────── */
+.back-to-globe-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin-bottom: 16px;
+  padding: 10px 12px;
+  background: #f0e6f8;
+  border: 1.5px solid #c9a0dc;
+  border-radius: 8px;
+  color: #5a1f68;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+.back-to-globe-btn:hover {
+  background: #7b2d8b;
+  border-color: #7b2d8b;
+  color: #fff;
+}
+.back-to-globe-btn svg {
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+.back-to-globe-btn:hover svg {
+  transform: translateX(-2px);
+}
 .panel-label { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: #1a001a; white-space: nowrap; }
 .panel-line { flex: 1; height: 1px; background: linear-gradient(to right, rgba(123,45,139,0.3), transparent); }
 .filter-section { overflow: hidden; border-bottom: 1px solid rgba(80,20,100,0.06); }
